@@ -17,7 +17,7 @@ class bugAlgorithm:
 		self.ReadFile()
 		# print(computeDistancePointToPolygon([2.91,2.35],self.obstacles[1]))
 		# print(computeTangentVectorToPolygon([2.91,1.35],self.obstacles[1]))
-		self.f=open('output_base.txt','w')
+		self.f=open('output_1.txt','w')
 		self.f.write('{:.5f} , {:.5f} \n'.format(self.start[0],self.start[1]))
 
 		#publisher
@@ -171,7 +171,7 @@ if __name__ == '__main__':
 	rospy.init_node('bug_algo')
 	rospy.loginfo('bug algorithm solver nide has been created')
 	bugSolver=bugAlgorithm()
-	bugSolver.bug_base()
+	bugSolver.bug_1()
 	bugSolver.f.close()
 	rospy.loginfo('The way points are saved in output.txt. Closing the node')
 

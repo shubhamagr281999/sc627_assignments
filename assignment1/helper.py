@@ -13,6 +13,12 @@ def computeDistancePointToLine(q,P1,P2):
 	line=computeLineThroughTwoPoints(P1,P2)
 	return abs(line[0]*q[0]+line[1]*q[1]+line[2])
 
+def computeOrthogonalProjectionToSegment(q,P1,P2):
+	line=computeLineThroughTwoPoints(P1,P2)
+	d=line[0]*q[0]+line[1]*q[1]+line[2]
+	k_= [q[0]-d*line[0],q[1]-d*line[1]]
+	return k_
+
 def computeDistancePointToSegment(q,P1,P2):
 	line=computeLineThroughTwoPoints(P1,P2)
 	d=line[0]*q[0]+line[1]*q[1]+line[2]
@@ -66,7 +72,28 @@ def computeTangentVectorToPolygon(q,P):
 	else:
 		print('error check logic')
 
+def computeClosetPointToPolygon(q,P):
+	n=len(P)
+	distances=[]
+	for i in range(n-1):
+		distances.append(computeDistancePointToSegment(q,P[i],P[(i+1)]))
+	distances=np.array(distances)
+	dist=np.amin(distances)
+	# print(distances)
+	a=np.where(distances==dist)
+	if(len(a[0])>1):
+		#it is a vertex (logic is that the same distance would be seen for two line sharing same vertex)
+		if(a[0][0]==0 and a[0][1]!=1): #this is the case when its b/w first and last line in which case normal logic will fail
+			return P[0]
+		else:
+			return P[a[0][1]]
 
+	elif(len(a[0])>0):
+		#it is a line
+		return computeOrthogonalProjectionToSegment(q,P[a[0][0]+1],P[a[0][0]])
+
+	else:
+		print('error check logic')
 
 
 
