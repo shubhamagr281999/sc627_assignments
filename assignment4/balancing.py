@@ -74,6 +74,7 @@ class Balancing:
 	    ang_err = min(max(ang - theta, -self.ANG_MAX), self.ANG_MAX)
 	    v_lin =  min(max(cos(ang_err) * sqrt(vel_x ** 2 + vel_y ** 2), -self.VEL_MAX), self.VEL_MAX)
 	    v_ang = gain_ang * ang_err
+	    print(v_lin,v_ang)
 	    return v_lin, v_ang
 
 	def distance(self,a,b):
@@ -92,7 +93,7 @@ class Balancing:
 		self.start_time=time()
 		while not rospy.is_shutdown():
 			u=self.distance(self.pose_bot,self.pose_right_bot)-self.distance(self.pose_bot,self.pose_left_bot)
-			self.moveToNextStep()
+			self.moveToNextStep([0.5*u,0.0])
 			self.rate.sleep()
 		return 1
 
