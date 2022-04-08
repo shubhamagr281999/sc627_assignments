@@ -29,14 +29,14 @@ class Balancing:
 		self.pub_vel = rospy.Publisher('/cmd_vel', Twist, queue_size = 10)
 
 		#plotting
-		self.waypoints=[[self.pose_bot[0]],[self.pose_bot[1]]]
-		self.time_elapsed=[0]
+		self.waypoints=[[],[]]
+		self.time_elapsed=[]
 		self.start_time=0
 
 		#velocity obstacle params:
 		self.ANG_MAX=0.8
 		self.VEL_MAX=0.15
-		self.lin_threshold=0.1
+		self.epsilon=0.0004
 
 	def callback_left_odom(self,msg):
 		self.pose_left_bot[0]=msg.pose.pose.position.x
@@ -63,17 +63,9 @@ class Balancing:
 		self.waypoints[1].append(self.pose_bot[1])
 
 	def velocity_convert(self,theta, vel_x, vel_y):
-	    '''
-	    Robot pose (x, y, theta)  Note - theta in (0, 2pi)
-	    Velocity vector (vel_x, vel_y)
-	    '''
-	    gain_ang = 4 #to be tuned
-	    
-	    ang = atan2(vel_y, vel_x)
-	    
-	    ang_err = min(max(ang - theta, -self.ANG_MAX), self.ANG_MAX)
-	    v_lin =  min(max(cos(ang_err) * sqrt(vel_x ** 2 + vel_y ** 2), -self.VEL_MAX), self.VEL_MAX)
-	    v_ang = gain_ang * ang_err
+
+	    v_lin =  min(max(vel_x, -self.VEL_MAX), self.VEL_MAX)
+	    v_ang = 0
 	    print(v_lin,v_ang)
 	    return v_lin, v_ang
 
@@ -91,9 +83,13 @@ class Balancing:
 	def balancing_algo(self):
 		print('Starting velocity obstacles Algo to move to the goal')
 		self.start_time=time()
-		while not rospy.is_shutdown():
+		cnt=0
+		while (True):
 			u=self.distance(self.pose_bot,self.pose_right_bot)-self.distance(self.pose_bot,self.pose_left_bot)
-			self.moveToNextStep([0.5*u,0.0])
+			self.moveToNextStep([u,0.0])
+			if (self.vel_bot<self.epsilon and self.vel_right_bot<self.epsilon and self.vel_left_bot<self.epsilon and cnt>1000):
+				break
+			cnt+=1
 			self.rate.sleep()
 		return 1
 
@@ -104,7 +100,7 @@ if __name__ == '__main__':
 	rospy.loginfo('balancing node has been created')
 	Solver=Balancing()
 	Solver.balancing_algo()
-	rospy.loginfo('The way points are saved in output.txt. Ploting the same now')
+	rospy.loginfo('Yay Common Consencus acheived')
 	plt.plot(Solver.waypoints[0],Solver.waypoints[1])
 	plt.title('Path taken by the bot')
 	plt.xlabel('X')

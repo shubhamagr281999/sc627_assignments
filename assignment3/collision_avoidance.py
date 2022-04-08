@@ -35,7 +35,7 @@ class Collision_avoidance:
 		self.f.write('{:.5f} , {:.5f} \n'.format(self.pose[0],self.pose[1]))
 
 		#plotting
-		self.waypoints=[[self.pose[0]],[self.pose[1]]]
+		self.waypoints=[[],[]]
 		self.time_elapsed=[0]
 		self.start_time=0
 
@@ -44,7 +44,7 @@ class Collision_avoidance:
 		self.VEL_MAX=0.15
 		self.lin_threshold=0.3
 		self.obstacle_dia=0.15
-		self.bot_dia=0.15
+		self.bot_dia=0.15 #to consider some padding so that we dont move very close to obstacle some paddinig is considered around bot and obstacle
 		self.alpha=0.7
 		self.max_angle_dev=0.175
 		self.max_vel_dev=0.05
@@ -186,7 +186,7 @@ if __name__ == '__main__':
 	rospy.loginfo('collision_avoidance node has been created')
 	Solver=Collision_avoidance()
 	Solver.volcityObstacle_based_planer()
-	rospy.loginfo('The way points are saved in output.txt. Ploting the same now')
+	rospy.loginfo('yay gaol achieved. Path saved in output.txt')
 	rospy.signal_shutdown('Shutting down node')
 	Solver.f.close()
 	plt.plot(Solver.waypoints[0],Solver.waypoints[1])
