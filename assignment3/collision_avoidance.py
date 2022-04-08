@@ -42,10 +42,10 @@ class Collision_avoidance:
 		#velocity obstacle params:
 		self.ANG_MAX=0.8
 		self.VEL_MAX=0.15
-		self.lin_threshold=0.1
-		self.obstacle_dia=0.25
-		self.bot_dia=0.25
-		self.alpha=0.35
+		self.lin_threshold=0.4
+		self.obstacle_dia=0.15
+		self.bot_dia=0.15
+		self.alpha=0.7
 		self.max_angle_dev=0.175
 		self.max_vel_dev=0.05
 
@@ -85,7 +85,7 @@ class Collision_avoidance:
 		self.waypoints[1].append(self.pose[1])
 
 	def velocity_convert(self,theta, vel_x, vel_y):
-	    gain_ang = 4 #to be tuned
+	    gain_ang = 8 #to be tuned
 	    
 	    ang = atan2(vel_y, vel_x)
 	    
@@ -108,7 +108,10 @@ class Collision_avoidance:
 	def check_not_in_collision_cone(self,vel):
 		cnt=0
 		for i in self.obstacle_cone_origin:
-			if(self.cos_from_dot(self.obstacle_cone_axis[cnt],[vel[0]-i[0],vel[0]-i[1]])<self.obstacle_cone_angle[cnt]):
+			# print(self.obstacle_cone_axis)
+			# print(self.obstacle_cone_origin)
+			# print(self.obstacle_cone_angle)
+			if(self.cos_from_dot(self.obstacle_cone_axis[cnt],[vel[0]-i[0],vel[1]-i[1]])<self.obstacle_cone_angle[cnt]):
 				return False
 			cnt+=1
 		return True
@@ -136,8 +139,8 @@ class Collision_avoidance:
 	def choose_vel(self):
 		direction_to_go=self.direction_to_goal()
 		print('Direction to go:',direction_to_go,'----------------------------------------------------------------------------------')
-		for i in range(15):
-			scan_direction=direction_to_go + self.alpha*i/14	
+		for i in range(35):
+			scan_direction=direction_to_go + self.alpha*i/34	
 			dist=self.dist_to_edge(scan_direction)
 			print('scan_direction:',scan_direction)
 			for j in range(6):
@@ -150,7 +153,7 @@ class Collision_avoidance:
 					print('--------------i:',i,'| -------------------------------j:',j)
 					return vel
 
-			scan_direction=direction_to_go - self.alpha*i/14
+			scan_direction=direction_to_go - self.alpha*i/34
 			print('scan_direction:',scan_direction)	
 			dist=self.dist_to_edge(scan_direction)
 			for j in range(6):
@@ -160,10 +163,14 @@ class Collision_avoidance:
 				within_angle_max=self.check_in_max_theta_dev(vel)
 				print('vel:',vel,' | collision_free:',collision_free,' | Within_v_max:',Within_v_max,' | within_angle_max:',within_angle_max)
 				if(collision_free and Within_v_max and within_angle_max):
+					print('--------------i:',i,'| -------------------------------j:',j)
 					return vel
 		print('Didnt find any good point to go to. Bot surrounded by obstacle. Not possible to avoid them while moving to goal.')
 		return [0,0]
 		
+	def go_to_goal(self):
+		
+
 	def volcityObstacle_based_planer(self):
 		print('Starting velocity obstacles Algo to move to the goal')
 		self.start_time=time()
@@ -172,6 +179,7 @@ class Collision_avoidance:
 			print('vel',vel,'--------------------------------------------------------------')
 			self.moveToNextStep(vel)
 			self.rate.sleep()
+		self.go_to_goal()
 		print('YAY Goal reached !!!')
 		return 1
 
