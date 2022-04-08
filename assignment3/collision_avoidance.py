@@ -42,7 +42,7 @@ class Collision_avoidance:
 		#velocity obstacle params:
 		self.ANG_MAX=0.8
 		self.VEL_MAX=0.15
-		self.lin_threshold=0.4
+		self.lin_threshold=0.3
 		self.obstacle_dia=0.15
 		self.bot_dia=0.15
 		self.alpha=0.7
@@ -168,9 +168,6 @@ class Collision_avoidance:
 		print('Didnt find any good point to go to. Bot surrounded by obstacle. Not possible to avoid them while moving to goal.')
 		return [0,0]
 		
-	def go_to_goal(self):
-		
-
 	def volcityObstacle_based_planer(self):
 		print('Starting velocity obstacles Algo to move to the goal')
 		self.start_time=time()
@@ -179,35 +176,29 @@ class Collision_avoidance:
 			print('vel',vel,'--------------------------------------------------------------')
 			self.moveToNextStep(vel)
 			self.rate.sleep()
-		self.go_to_goal()
 		print('YAY Goal reached !!!')
 		return 1
 
 
 
 if __name__ == '__main__':
-	rospy.init_node('collision_avoidance')
+	rospy.init_node('collision_avoidance',disable_signals=True)
 	rospy.loginfo('collision_avoidance node has been created')
 	Solver=Collision_avoidance()
-	# print(Solver.dist_to_edge(0))
-	# print(Solver.dist_to_edge(pi/2))
-	# print(Solver.dist_to_edge(pi))
-	# print(Solver.dist_to_edge(3*pi/2))
-	# print(Solver.dist_to_edge(3*pi/4))
-	# print(Solver.dist_to_edge(5*pi/4))
 	Solver.volcityObstacle_based_planer()
 	rospy.loginfo('The way points are saved in output.txt. Ploting the same now')
-	# Solver.f.close()
-	# plt.plot(Solver.waypoints[0],Solver.waypoints[1])
-	# plt.title('Path taken by the bot')
-	# plt.xlabel('X')
-	# plt.ylabel('Y')
-	# plt.show()
-	# plt.plot(Solver.time_elapsed,Solver.waypoints[0])
-	# plt.title('Time vs X position of bot')
-	# plt.ylabel('pos_x')
-	# plt.xlabel('time in seconds	')
-	# plt.show()
+	rospy.signal_shutdown('Shutting down node')
+	Solver.f.close()
+	plt.plot(Solver.waypoints[0],Solver.waypoints[1])
+	plt.title('Path taken by the bot')
+	plt.xlabel('X')
+	plt.ylabel('Y')
+	plt.show()
+	plt.plot(Solver.time_elapsed,Solver.waypoints[0])
+	plt.title('Time vs X position of bot')
+	plt.ylabel('pos_x')
+	plt.xlabel('time in seconds	')
+	plt.show()
 
 
 
